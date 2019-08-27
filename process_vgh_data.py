@@ -37,9 +37,11 @@ use_folderid_as_ptid = opt.folderid # boleen variable of whether to use the fold
 
 tags = {"Patient Name": "0010|0010",
         "Patient ID": "0010|0020",
+        "Patient Birthday": "0010|0030",
         "Series Description": "0008|103e",
         "Modality": "0008|0060",
-        "Contrast Agent": "0018|0010"
+        "Contrast Agent": "0018|0010",
+        "Study Date": "0008|0020"
         }
 pat_data = {}
 patients = glob.glob(os.path.join(path, "*"))
@@ -68,7 +70,7 @@ for pat in patients:
             # print only if I find Ax T1 in the study
             ser_desc = reader.GetMetaData(0, "0008|103e")
             if use_folderid_as_ptid:
-                pat_id = os.path.basename(os.path.split(path)[0]) 
+                pat_id = os.path.basename(os.path.split(path)[0])+'_'+reader.GetMetaData(0, tags['Study Date']) 
             else:
                 pat_id = reader.GetMetaData(0, tags['Patient ID'])
             if not (pat_id in pat_data.keys()):
