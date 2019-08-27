@@ -17,6 +17,7 @@ parser.add_argument('--target_spacing', type=str, default="1x1x1", help='specify
 parser.add_argument('--verbose', type=int, default=0, help='specify whether to output logging information (1) or not (0)')
 parser.add_argument('--interpolator', type=int, default=0, help='voxel interpolator to use, requires --resample=1. (0) = BSpline, (1) = NearestNeighbour, (2) Linear')
 parser.add_argument('--out_format', type=str, default="nii.gz", help='required output format of the files, can be any format that SimpleITK supports.')
+parser.add_argument('--folderid', type=int, default=1, help='use the folder id of the DICOMDIR as the patient id, 1=True')
 
 opt = parser.parse_args()
 
@@ -32,6 +33,8 @@ except:
     logger = logging.getLogger(__name__)
 logger.info(opt)
 path = opt.path
+use_folderid_as_ptid = opt.folderid # boleen variable of whether to use the folder id as patient id
+
 tags = {"Patient Name": "0010|0010",
         "Patient ID": "0010|0020",
         "Series Description": "0008|103e",
@@ -64,7 +67,10 @@ for pat in patients:
             no_flag = False
             # print only if I find Ax T1 in the study
             ser_desc = reader.GetMetaData(0, "0008|103e")
-            pat_id = reader.GetMetaData(0, tags['Patient ID'])
+            if use_folderid_as_ptid:
+                pat_id = os.path.basename(os.path.split(path)[0]) 
+            else:
+                pat_id = reader.GetMetaData(0, tags['Patient ID'])
             if not (pat_id in pat_data.keys()):
                 pat_data[pat_id] = {
                     'T1': None,
